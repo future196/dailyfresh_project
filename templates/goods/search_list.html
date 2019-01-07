@@ -1,0 +1,47 @@
+{% extends "goods/base.html" %}
+{%  block title %}商品列表{% endblock title %}
+{% block body %}
+
+
+			<ul class="goods_type_list clearfix">
+				{% for good in goods %}
+				<li>
+					<a href="/goods/detail_{{ good.type.name }}_{{good.id}}/"><img src="/static/{{ good.picture }}/"></a>
+					<h4><a href="/goods/detail_{{ good.type.name }}_{{good.id}}/">{{ good.name }}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{ good.price }}</span>
+						<span class="unit">{{ good.price }}/{{ good.unit }}</span>
+						<a href="javascript:;" class="add_goods" title="加入购物车" onclick="add_cart({{ good.id }})"></a>
+					</div>
+				</li>
+				{% endfor %}
+
+			</ul>
+
+
+		</div>
+
+<script>
+	<!--添加购物车 ajax-->
+		function add_cart(goods_id){
+		var xhr;
+		if(window.XMLHttpRequest){
+		xhr = new XMLHttpRequest();
+		}
+		url ="/cart/add_cart_"+goods_id+"_1";
+		xhr.open("GET",url,true);
+
+		xhr.onreadystatechange=function(){
+
+		if(xhr.readyState == 4 && xhr.status == 200){
+			var data = xhr.responseText;
+			data = JSON.parse(data);
+			document.getElementById("show_count").innerHTML=data.cart_count;
+			}
+		}
+		xhr.send();
+		}
+
+</script>
+
+{% endblock body %}

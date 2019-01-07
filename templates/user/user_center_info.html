@@ -1,0 +1,77 @@
+{% extends 'user/base.html' %}
+{% block title %}用户中心{% endblock title %}
+{% block head %}{% endblock head %}
+
+{% block body %}
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="" class="active">· 个人信息</a></li>
+				<li><a href="/user/order/">· 全部订单</a></li>
+				<li><a href="/user/site/">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div class="right_content clearfix">
+				<div class="info_con clearfix">
+				<h3 class="common_title2">基本信息</h3>
+						<ul class="user_info_list">
+							<li><span>用户名：</span>{{ username }}</li>
+							<li><span>联系方式：</span>{{ email }}</li>
+							<li><span>联系地址：</span>{{ address }}</li>
+						</ul>
+				</div>
+				
+				<h3 class="common_title2">最近浏览</h3>
+				<div class="has_view_list">
+					<ul class="goods_type_list clearfix">
+
+					{% for goods in recent_list %}
+					<li>
+						<a href="/goods/detail_{{ goods.type.name }}_{{ goods.id }}"><img src="/static/{{ goods.picture }}"></a>
+						<h4><a href="detail.html">{{ goods.name }}</a></h4>
+						<div class="operate">
+							<span class="prize">￥{{ goods.price }}</span>
+							<span class="unit">{{ goods.price }}/{{ goods.unit }}</span>
+							<a href="javascript:;" class="add_goods" onclick="add_cart({{ goods.id }})" title="加入购物车"></a>
+						</div>
+					</li>
+					{% endfor %}
+
+
+			</ul>
+		</div>
+		</div>
+	</div>
+
+
+<script>
+		<!--添加购物车 ajax-->
+		function add_cart(goods_id){
+		var xhr;
+		if(window.XMLHttpRequest){
+		xhr = new XMLHttpRequest();
+		}
+		url ="/cart/add_cart_"+goods_id+"_1";
+		xhr.open("GET",url,true);
+
+		xhr.onreadystatechange=function(){
+
+		if(xhr.readyState == 4 && xhr.status == 200){
+			var data = xhr.responseText;
+			data = JSON.parse(data);
+			document.getElementById("show_count").innerHTML=data.cart_count;
+			}
+		}
+		xhr.send();
+		pop_success()
+		}
+
+		function pop_success(){
+			alert("添加成功！")
+		}
+
+</script>
+
+{% endblock body %}

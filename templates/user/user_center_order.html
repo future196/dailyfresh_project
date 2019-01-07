@@ -1,0 +1,106 @@
+{% extends 'user/base.html' %}
+{% block title %}用户中心{% endblock title %}
+{% block head %}{% endblock head %}
+
+{% block body %}
+
+
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="/user/info/">· 个人信息</a></li>
+				<li><a href="" class="active">· 全部订单</a></li>
+				<li><a href="/user/site/">· 收货地址</a></li>
+			</ul>
+		</div>
+
+
+		<div class="right_content clearfix">
+				<h3 class="common_title2">全部订单</h3>
+
+					{% for order in orders %}
+				<ul class="order_list_th w978 clearfix">
+					<li class="col01">{{ order.date }}</li>
+					<li class="col02">订单号：{{ order.order_id }}</li>
+					{% if order.is_pay == 1 %}
+					<li class="col02 stress" id="pay_status_{{ order.order_id }}">已支付</li>
+					{% else %}
+					<li class="col02 stress" id="pay_status_{{ order.order_id }}">未支付</li>
+					{% endif %}
+				</ul>
+				<table class="order_list_table w980">
+					<tbody>
+						<tr>
+							<td width="55%">
+
+								{% for order_detail in order.orderdetail_set.all %}
+								<ul class="order_goods_list clearfix">					
+									<li class="col01"><img src="/static/{{ order_detail.goods.picture }}"></li>
+									<li class="col02">{{ order_detail.goods.name }}<em>{{ order_detail.goods.price }}元/{{ order_detail.goods.unit }}</em></li>
+									<li class="col03">{{ order_detail.count }}</li>
+									<li class="col04">{{ order_detail.price }}元</li>
+								</ul>
+								{% endfor %}
+
+							</td>
+							<td width="15%">{{ order.total }}元</td>
+							{% if order.is_pay == 1 %}
+							<td width="15%">已付款</td>
+							<td width="15%"><a href="javascript:;" class="oper_btn" >查物流</a></td>
+							{% else %}
+							<td width="15%">待付款</td>
+							<td width="15%"><a href="javascript:;" class="oper_btn" id="to_pay_{{ order.order_id }}" onclick="pay({{order.order_id}})">去付款</a></td>
+							{% endif %}
+						</tr>
+					</tbody>
+				</table>
+				{% endfor %}
+			{% if not orders %}
+				<br>
+				<br>
+				<p style="font-size:20px;text-align:center;">空空如也</p>
+				<br>
+				<br>
+			{% endif %}
+				<!--<div class="pagenation">-->
+					<!--<a href="#"><上一页</a>-->
+					<!--<a href="#" class="active">1</a>-->
+					<!--<a href="#">2</a>-->
+					<!--<a href="#">3</a>-->
+					<!--<a href="#">4</a>-->
+					<!--<a href="#">5</a>-->
+					<!--<a href="#">下一页></a>-->
+				<!--</div>-->
+		</div>
+	</div>
+<script>
+
+		function pay(id){
+		status = "pay_status_"+id;
+		to_pay = "to_pay_"+id;
+		if(document.getElementById(status).innerHTML == "未支付"){
+		var xhr;
+		if(window.XMLHttpRequest){
+		xhr = new XMLHttpRequest();
+		}
+		url ="/order/pay_"+id;
+		xhr.open("GET",url,true);
+
+		xhr.onreadystatechange=function(){
+
+		if(xhr.readyState == 4 && xhr.status == 200){
+			var data = xhr.responseText;
+			data = JSON.parse(data);
+			document.getElementById(status).innerHTML=data.status;
+			document.getElementById(to_pay).innerHTML="查物流";
+			alert("支付成功！")
+			}
+		}
+		xhr.send();
+		}
+		}
+</script>
+
+{% endblock body %}

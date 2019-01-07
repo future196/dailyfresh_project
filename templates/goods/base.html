@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block body2 %}
+
+	<div class="search_bar clearfix">
+		<a href="/goods/home/" class="logo fl"><img src="/static/images/logo.png"></a>
+		<form action="/goods/search/" method="post">
+			{% csrf_token %}
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="key_code" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr" name="" value="搜索">
+		</div>
+		</form>
+		<div class="guest_cart fr">
+			<a href="/cart/" class="cart_name fl">我的购物车</a>
+			{% if request.session.cart_count %}
+			<div class="goods_count fl" id="show_count">{{ request.session.cart_count }}</div>
+			{% else %}
+			<div class="goods_count fl" id="show_count">0</div>
+			{% endif %}
+		</div>
+	</div>
+
+
+{% if home %}
+	<div class="navbar_con">
+		<div class="navbar">
+			<h1 class="fl">全部商品分类</h1>
+
+{% else %}
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>
+				<span></span>
+				<ul class="subnav">
+					<li><a href="/goods/list_fruits_date_1/" class="fruit">新鲜水果</a></li>
+					<li><a href="/goods/list_aquaculture_date_1/" class="seafood">海鲜水产</a></li>
+					<li><a href="/goods/list_meat_date_1/" class="meet">猪牛羊肉</a></li>
+					<li><a href="/goods/list_eggs_date_1/" class="egg">禽类蛋品</a></li>
+					<li><a href="/goods/list_vegetables_date_1/" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="/goods/list_frozen_date_1/" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+{% endif %}
+				<ul class="navlist fl">
+					<li><a href="/goods/home/">首页</a></li>
+					<li class="interval">|</li>
+					<li><a href="#">手机生鲜</a></li>
+					<li class="interval">|</li>
+					<li><a href="#">抽奖</a></li>
+				</ul>
+		</div>
+	</div>
+
+
+	{% if list or detail %}
+	<div class="breadcrumb">
+		<a href="/goods/home/">全部分类</a>
+		<span>></span>
+		<a href="/goods/list_{{ type }}_date_1">{{ title }}</a>
+		{% if search %}<a>搜索</a>{% endif %}
+	{% if detail %}
+		<span>></span>
+		<a href="">商品详情</a>
+	{% endif %}
+		</div>
+	{% endif %}
+
+
+{% endblock body2 %}

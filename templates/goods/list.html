@@ -1,0 +1,93 @@
+{% extends "goods/base.html" %}
+{%  block title %}商品列表{% endblock title %}
+{% block body %}
+
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+					{% for goods in newest_goods %}
+					<li>
+						<a href="/goods/detail_{{ goods.type.name }}_{{ goods.id }}"><img src="/static/{{ goods.picture }}/"></a>
+						<h4><a href="/goods/detail_{{ goods.type.name }}_{{ goods.id }}">{{ goods.name }}</a></h4>
+						<div class="prize">￥{{ goods.price }}</div>
+					</li>
+					{% endfor %}
+
+				</ul>
+			</div>
+		</div>
+
+
+		<div class="r_wrap fr clearfix">
+			<div class="sort_bar">
+				<a href="/goods/list_{{ type }}_date_1" {% if sort == "date" %} class="active" {% endif %}>默认</a>
+
+				<a href="/goods/list_{{ type }}_price_1" {% if sort == 'price' %} class="active" {% endif %}>价格</a>
+
+				<a href="/goods/list_{{ type }}_hits_1" {% if sort == 'hits' %} class="active" {% endif %}>人气</a>
+			</div>
+
+			<ul class="goods_type_list clearfix">
+				{% for good in goods %}
+				<li>
+					<a href="/goods/detail_{{ good.type.name }}_{{good.id}}/"><img src="/static/{{ good.picture }}/"></a>
+					<h4><a href="/goods/detail_{{ good.type.name }}_{{good.id}}/">{{ good.name }}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{ good.price }}</span>
+						<span class="unit">{{ good.price }}/{{ good.unit }}</span>
+						<a href="javascript:;" class="add_goods" title="加入购物车" onclick="add_cart({{ good.id }})"></a>
+					</div>
+				</li>
+				{% endfor %}
+
+			</ul>
+
+			<div class="pagenation">
+				{% if goods.has_previous %}
+				<a href="/goods/list_{{ type }}_{{ sort }}_{{ goods.previous_page_number }}">上一页</a>
+				{% endif %}
+
+				{% if page_length > 1 %}
+				{% for p in pages %}
+				{% if p == page_current %}
+				<a href="#" class="active">{{ p }}</a>
+				{% else %}
+				<a href="/goods/list_{{ type }}_{{ sort }}_{{ p }}">{{ p }}</a>
+				{% endif %}
+				{% endfor %}
+				{% endif %}
+
+				{% if goods.has_next %}
+				<a href="/goods/list_{{ type }}_{{ sort }}_{{ goods.next_page_number }}">下一页></a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+<script>
+	<!--添加购物车 ajax-->
+		function add_cart(goods_id){
+		var xhr;
+		if(window.XMLHttpRequest){
+		xhr = new XMLHttpRequest();
+		}
+		url ="/cart/add_cart_"+goods_id+"_1";
+		xhr.open("GET",url,true);
+
+		xhr.onreadystatechange=function(){
+
+		if(xhr.readyState == 4 && xhr.status == 200){
+			var data = xhr.responseText;
+			data = JSON.parse(data);
+			document.getElementById("show_count").innerHTML=data.cart_count;
+			}
+		}
+		xhr.send();
+		}
+
+</script>
+
+{% endblock body %}

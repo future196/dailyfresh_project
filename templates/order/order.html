@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}提交订单{% endblock title %}
+{% block body %}
+
+	<div class="search_bar clearfix">
+		<a href="/goods/home/" class="logo fl"><img src="/static/images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;提交订单</div>
+		<div class="search_con fr">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
+	</div>
+	
+	<h3 class="common_title">确认收货地址</h3>
+
+	<div class="common_list_con clearfix">
+		<dl>
+			<dt>寄送到：</dt>
+			<dd><input type="radio" name="" checked="" id="address">{{ user.address }}	{{ user.receive_user }}(收)	电话：{{ telephone }}</dd>
+			<p id="test_address" hidden="true">{{ user.address }}</p>
+			<p id="test_telephone" hidden="true">{{ telephone }}</p>
+		</dl>
+		<a href="/user/site/" class="edit_site">编辑收货地址</a>
+
+	</div>
+	
+	<h3 class="common_title">支付方式</h3>	
+	<div class="common_list_con clearfix">
+		<div class="pay_style_con clearfix">
+			<input type="radio" name="pay_style" checked>
+			<label class="cash">货到付款</label>
+			<input type="radio" name="pay_style">
+			<label class="weixin">微信支付</label>
+			<input type="radio" name="pay_style">
+			<label class="zhifubao"></label>
+			<input type="radio" name="pay_style">
+			<label class="bank">银行卡支付</label>
+		</div>
+	</div>
+
+	<h3 class="common_title">商品列表</h3>
+
+
+	<div class="common_list_con clearfix">
+		<ul class="goods_list_th clearfix">
+			<li class="col01">商品名称</li>
+			<li class="col02">商品单位</li>
+			<li class="col03">商品价格</li>
+			<li class="col04">数量</li>
+			<li class="col05">小计</li>		
+		</ul>
+
+{% if type == "cart" %}
+		{% for order in order_list %}
+		<ul class="goods_list_td clearfix" id="{{ order.id }}">
+			<li class="col01">{{ order.id }}</li>
+			<li class="col02"><img src="/static/{{ order.goods.picture }}"></li>
+			<li class="col03">{{ order.goods.name }}</li>
+			<li class="col04">{{ order.goods.unit }}</li>
+			<li class="col05">{{ order.goods.price }}</li>
+			<li class="col06">{{ order.count }}</li>
+			<li class="col07">25.80元</li>	
+		</ul>
+		{% endfor %}
+	</div>
+{% else %}
+		<ul class="goods_list_td clearfix" >
+			<li class="col01" id="goods_id">{{ goods.id }}</li>
+			<li class="col02"><img src="/static/{{ goods.picture }}"></li>
+			<li class="col03">{{ goods.name }}</li>
+			<li class="col04">{{ goods.unit }}</li>
+			<li class="col05">{{ goods.price }}</li>
+			<li class="col06" id="count">{{ count }}</li>
+			<li class="col07">25.80元</li>
+		</ul>
+{% endif %}
+
+	<h3 class="common_title">总金额结算</h3>
+
+	<div class="common_list_con clearfix">
+		<div class="settle_con">
+			<div class="total_goods_count">共<em>{{ order_count }}</em>件商品，总金额<b id="total">42.60元</b></div>
+			<div class="transit">运费：<b>10元</b></div>
+			<div class="total_pay">实付款：<b id="pay">52.60</b><b>元</b></div>
+		</div>
+	</div>
+
+	<div class="order_submit clearfix">
+		{% if type == "cart" %}
+		<a href="javascript:;" id="order_btn">提交订单</a>
+		{% else %}
+		<a href="javascript:;" id="order_btn2">提交订单</a>
+		{% endif %}
+	</div>	
+
+	<div class="popup_con">
+		<div class="popup">
+			<p></p>
+		</div>
+		
+		<div class="mask"></div>
+	</div>
+
+	<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+	<script type="text/javascript">
+
+		<!--$('#order_btn').click(function() {-->
+			<!--localStorage.setItem('order_finish',2);-->
+			<!--$('.popup_con').fadeIn('fast', function() {-->
+				<!--setTimeout(function(){-->
+					<!--$('.popup_con').fadeOut('fast',function(){-->
+						<!--window.location.href = '/user/order/';-->
+					<!--});	-->
+				<!--},1000)-->
+			<!--});-->
+		<!--});-->
+
+
+
+
+
+
+		<!--各个商品的小计-->
+		<!--使用JQuery遍历的方法-->
+			$(".col07").html(function () {
+			price = parseFloat($(this).prevAll().filter(".col05").html());
+			count = parseInt($(this).prevAll().filter(".col06").html());
+			return ((price*100)*(count*100)/10000).toFixed(2);
+        	})
+
+
+		<!--订单总金额-->
+		$("#total").html(function () {
+			var total = 0;
+			$(".col07").each(function () {
+				total += parseFloat($(this).html());
+            });
+			return total.toFixed(2)+"元";
+        });
+
+		<!--实际需要支付金额-->
+		function pay(){
+		total = document.getElementById("total").innerHTML;
+		pay = parseFloat(total) + 10;
+		document.getElementById("pay").innerHTML = pay.toFixed(2);
+		}
+		pay()
+
+ $(function(){
+	var test_address = document.getElementById("test_address").innerHTML;
+	var test_telephone = document.getElementById("test_telephone").innerHTML;
+
+	$('#order_btn').click(function(){
+	if(test_address | test_telephone == ""){
+	alert("请填写完整收货信息！")
+	}else{
+     order_id = []
+     $('.goods_list_td').each(function(){
+       order_id.push($(this).attr('id'));
+     });
+
+     localStorage.setItem('order_finish',2);
+
+     $.post({
+       url:'/order/add_order/',
+       dataType:'json',
+       type:'POST',
+       data:{
+         'csrfmiddlewaretoken': '{{ csrf_token }}',
+         id:order_id,
+         total:$('#pay').text(),
+         address:$('#address').text(),
+       },
+     })
+      .done(function(data){
+        if(data.status == 1){
+          $('.popup_con p').text('订单提交成功！');
+          $('.popup_con').fadeIn('fast', function() {
+            setTimeout(function(){
+              $('.popup_con').fadeOut('fast',function(){
+	        window.location.href = '/user/order/';
+              });
+            },3000)
+          });
+        }
+        else if(data.status == 2){
+          $('.popup_con p').text('超出库存请修改！');
+          $('.popup_con').fadeIn('fast', function() {
+            setTimeout(function(){
+              $('.popup_con').fadeOut('fast',function(){
+	        window.location.href = '/cart/';
+              });
+            },3000)
+          });
+        }
+      });
+}
+   });
+   })
+
+// 详情直接购买
+ $(function(){
+ 	var test_address = document.getElementById("test_address").innerHTML;
+	var test_telephone = document.getElementById("test_telephone").innerHTML;
+
+	$('#order_btn2').click(function(){
+	if(test_address | test_telephone == ""){
+	alert("请填写完整收货信息！")
+	}else{
+     goods_id = document.getElementById("goods_id").innerHTML;
+     count = document.getElementById("count").innerHTML;
+     localStorage.setItem('order_finish',2);
+
+     $.post({
+       url:'/order/add_order/',
+       dataType:'json',
+       type:'POST',
+       data:{
+         'csrfmiddlewaretoken': '{{ csrf_token }}',
+         goods_id:goods_id,
+         total:$('#pay').text(),
+         address:$('#address').text(),
+         count:count,
+       },
+     })
+      .done(function(data){
+        if(data.status == 1){
+          $('.popup_con p').text('订单提交成功！');
+          $('.popup_con').fadeIn('fast', function() {
+            setTimeout(function(){
+              $('.popup_con').fadeOut('fast',function(){
+	        window.location.href = '/user/order/';
+              });
+            },3000)
+          });
+        }
+        else if(data.status == 2){
+          $('.popup_con p').text('超出库存请修改！');
+          $('.popup_con').fadeIn('fast', function() {
+            setTimeout(function(){
+              $('.popup_con').fadeOut('fast',function(){
+	        window.location.href = '/cart/';
+              });
+            },3000)
+          });
+        }
+      });
+}
+   });
+   })
+
+</script>
+
+{% endblock body %}
